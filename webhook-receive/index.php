@@ -6,13 +6,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Google\CloudFunctions\FunctionsFramework;
 use GuzzleHttp\Psr7\Response;
+use yananob\MyGcpTools\CFUtils;
 use yananob\MyTools\Logger;
 use yananob\MyTools\Line;
 
 FunctionsFramework::http('main', 'main');
 function main(ServerRequestInterface $request): ResponseInterface
 {
-    $logger = new Logger("webhook-receive");
+    $logger = new Logger(CFUtils::getFunctionName());
     $logger->log(str_repeat("-", 120));
     $logger->log("headers: " . json_encode($request->getHeaders()));
     $logger->log("params: " . json_encode($request->getQueryParams()));
@@ -20,6 +21,9 @@ function main(ServerRequestInterface $request): ResponseInterface
     $body = $request->getBody()->getContents();
     $logger->log("body: " . $body);
     $body = json_decode($body, false);
+
+    $logger->log($_ENV);
+    $logger->log(CFUtils::isTestingEnv());
 
     $event = $body->events[0];
     $message = $event->message->text;

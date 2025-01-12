@@ -6,7 +6,8 @@
         "php": ">= 8.2",
         "google/cloud-functions-framework": "^1.3",
         "google/protobuf": "^3.17",
-        "yananob/my-tools": "dev-main"
+        "yananob/my-tools": "dev-main",
+        "yananob/my-gcp-tools": "dev-main"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.3",
@@ -16,6 +17,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:yananob/mytools.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:yananob/my-gcp-tools.git"
         }
     ],
     "scripts": {
