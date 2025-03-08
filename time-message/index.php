@@ -22,7 +22,7 @@ function main(CloudEventInterface $event): void
 
         if ($trigger->isLaunch($setting["timing"])) {
             $logger->log("Sending message");
-            $line->sendMessage($setting["bot"], $setting["target"], $setting["message"]);
+            $line->sendPush(bot: $setting["bot"], target: $setting["target"], message: $setting["message"]);
         }
     };
 
