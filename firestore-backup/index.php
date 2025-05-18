@@ -51,11 +51,19 @@ function __save_csv(QuerySnapshot $documents): string
     $tmpfname = tempnam(__DIR__ . DIRECTORY_SEPARATOR . "tmp", "temp.csv");
     $fp = fopen($tmpfname, "w");
     try {
+        $keys = [];
+        foreach ($documents as $idx => $doc) {
+            $docData = $doc->data();
+            // 最初の100行で、項目を判断する
+            if ($idx > 100) {
+                break;
+            }
+            $keys = array_unique(array_merge($keys, array_keys($docData)));
+        }
+
         foreach ($documents as $idx => $doc) {
             $docData = $doc->data();
             if ($idx === 0) {
-                // TODO: 1行目のデータでカラムを判断してるので、欠落するカラムがあるかも？
-                $keys = array_keys($docData);
                 fputcsv($fp, $keys);
             }
             $data = [];
