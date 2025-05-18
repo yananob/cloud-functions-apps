@@ -29,7 +29,7 @@ function main(CloudEventInterface $event): void
 
         $tmp_filepath = null;
         if ($target["type"] === "collection") {
-            $tmp_filepath = __save_csv($target["columns"], $db_accessor->collection($target["path"])->documents());
+            $tmp_filepath = __save_csv($db_accessor->collection($target["path"])->documents());
         }
         // document:
         // $backup_doc = $db_accessor->document("daily-quotes-test/admin")->snapshot()->data();
@@ -46,16 +46,21 @@ function main(CloudEventInterface $event): void
     $logger->log("Succeeded.");
 }
 
-function __save_csv(array $columns, QuerySnapshot $documents): string
+function __save_csv(QuerySnapshot $documents): string
 {
     $tmpfname = tempnam(__DIR__ . DIRECTORY_SEPARATOR . "tmp", "temp.csv");
     $fp = fopen($tmpfname, "w");
     try {
-        fputcsv($fp, $columns);
-        foreach ($documents as $doc) {
+        foreach ($documents as $idx => $doc) {
+            $docData = $doc->data();
+            if ($idx === 0) {
+                // TODO: 1行目のデータでカラムを判断してるので、欠落するカラムがあるかも？
+                $keys = array_keys($docData);
+                fputcsv($fp, $keys);
+            }
             $data = [];
-            foreach ($columns as $column) {
-                $data[$column] = $doc->data()[$column];
+            foreach ($keys as $key) {
+                $data[$key] = isset($docData[$key]) ? $docData[$key] : "";
             }
             fputcsv($fp, $data);
         }
