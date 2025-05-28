@@ -28,8 +28,12 @@ function main(CloudEvents\V1\CloudEventInterface $event): void
             $logger->log("Adding page to Pocket"); // Pocketに追加処理を行うことをログに出力
             // Pocketオブジェクトを初期化 (Pocketの設定ファイルパスを指定)
             $pocket = new yananob\MyTools\Pocket(__DIR__ . '/configs/pocket.json');
+            // Raindropオブジェクトを初期化 (Raindropの設定ファイルパスを指定)
+            $raindrop = new yananob\MyTools\Raindrop(__DIR__ . '/configs/raindrop.json');
             // 設定されたURLをPocketに追加
             $pocket->add($setting["url"]);
+            // 設定されたURLをRaindropに追加
+            $raindrop->add($setting["url"]);
         }
     };
 
