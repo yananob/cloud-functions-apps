@@ -76,23 +76,26 @@ class IndexTest extends TestCase
         $testSettings = [
             "settings" => [
                 [
-                    "timing" => "* * * * *", // Trigger always
+                    "timing" => [
+                        "weekdays" => [0, 1, 2, 3, 4, 5, 6], // All days
+                        "hour" => (int)date('G') // Use current hour to ensure it matches
+                    ],
                     "url" => $testUrl
                 ]
             ]
         ];
         file_put_contents($this->configFilePath, json_encode($testSettings));
         
-        // Mocks for Pocket, Raindrop, and Trigger
-        // These mocks won't be used by main() due to direct instantiation.
+        // Mocks for Pocket, Raindrop, and Trigger cannot be created if classes are final.
+        // These mocks won't be used by main() due to direct instantiation anyway.
         // This is the limitation.
-        $mockPocket = $this->createMock(Pocket::class);
-        $mockRaindrop = $this->createMock(Raindrop::class);
-        $mockTrigger = $this->createMock(Trigger::class);
+        // $mockPocket = $this->createMock(Pocket::class);
+        // $mockRaindrop = $this->createMock(Raindrop::class);
+        // $mockTrigger = $this->createMock(Trigger::class);
 
-        // We expect 'add' to be called on the *actual* objects, but cannot assert this on mocks.
-        // $mockPocket->expects($this->once())->method('add')->with($testUrl);
-        // $mockRaindrop->expects($this->once())->method('add')->with($testUrl);
+        // We expect 'add' to be called on the *actual* objects, but cannot assert this on mocks
+        // if they could be created and injected.
+        // e.g., $mockPocket->expects($this->once())->method('add')->with($testUrl);
         
         // We can't easily mock Trigger->isLaunch to return true for the *actual* object
         // used in main(). If the real Trigger class logic is complex or relies on time,
