@@ -6,12 +6,11 @@ from common.utils import load_conf # common.utilsから設定読み込み関数�
 
 app = Flask(__name__)
 
-# AutoRemoteサービスのAPIエンドポイントURL
 AUTOREMOTE_ENDPOINT = 'https://autoremotejoaomgcd.appspot.com/sendmessage'
 
-LOG_LEVEL = logging.INFO # ログレベルをINFOに設定
+LOG_LEVEL = logging.INFO
 
-# AutoRemote APIへのリクエスト例 (コメントアウト)
+# AutoRemote APIへのリクエスト例
 # ?key=[APIキー]
 # &message=[スピーカー名]%20[メッセージ本文]=:=voice  (例: jp_women%20テスト=:=voice)
 
@@ -24,21 +23,18 @@ def send_request(conf, speaker, message):
     # メッセージ内のスペースをカンマに置換 (AutoRemoteの仕様に合わせるためか？)
     message = message.replace(" ", ",")
 
-    # AutoRemote APIに送信するデータを作成
     data = {
-        "key": conf["token"], # 設定から取得したAPIトークン
+        "key": conf["token"],
         "message": "{} {}=:=voice".format(speaker, message), # "スピーカー名 メッセージ本文=:=voice" の形式
     }
     
-    logging.info("speaker: {}, message: {}".format(speaker, message)) # 送信するスピーカーとメッセージをログに出力
-    # URLエンコードされたデータを含むリクエストオブジェクトを作成
+    logging.info("speaker: {}, message: {}".format(speaker, message))
     req = urllib.request.Request("{}?{}".format(AUTOREMOTE_ENDPOINT, urllib.parse.urlencode(data)))
     
-    # AutoRemote APIにリクエストを送信し、レスポンスをログに出力
     # res = urllib.request.urlopen(req) # 古い書き方 (コメントアウト)
     # logging.info("response: {}".format(res.read())) # 古い書き方 (コメントアウト)
-    with urllib.request.urlopen(req) as res: # リクエストを送信し、レスポンスを取得
-        logging.info("response: {}".format(res.read())) # レスポンス内容をログに出力
+    with urllib.request.urlopen(req) as res:
+        logging.info("response: {}".format(res.read()))
 
 
 @functions_framework.http # HTTPトリガーで起動するCloud Functionとして登録
@@ -46,20 +42,17 @@ def main(req):
     # 設定情報をロード (具体的な実装は load_conf 次第)
     conf = load_conf() 
 
-    # ロギング設定を初期化
-    logging.basicConfig(format="[%(asctime)s] [%(levelname)s] %(message)s", # ログのフォーマット
-                        level=LOG_LEVEL, datefmt="%Y/%m/%d %H:%M:%S") # ログレベルと日付フォーマット
-    logging.info("args: {}".format(req.args)) # HTTPリクエストの引数をログに出力
+    logging.basicConfig(format="[%(asctime)s] [%(levelname)s] %(message)s",
+                        level=LOG_LEVEL, datefmt="%Y/%m/%d %H:%M:%S")
+    logging.info("args: {}".format(req.args))
 
-    feedback = "" # ユーザーへのフィードバックメッセージ
-    # リクエストのクエリパラメータから "speaker" と "message" を取得
-    speaker = req.args.get("speaker", "") # speakerパラメータがない場合は空文字
-    message = req.args.get("message", "") # messageパラメータがない場合は空文字
+    feedback = ""
+    speaker = req.args.get("speaker", "")
+    message = req.args.get("message", "")
 
-    # speakerとmessageの両方が指定されている場合
     if speaker and message:
-        send_request(conf, speaker, message) # AutoRemoteにリクエストを送信
-        feedback = "Message successfully sent." # フィードバックメッセージを設定
+        send_request(conf, speaker, message)
+        feedback = "Message successfully sent."
 
     # HTMLテンプレート (form.html) をレンダリングして返す
     # フィードバックメッセージをテンプレートに渡す

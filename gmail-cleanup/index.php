@@ -22,9 +22,6 @@ function main(CloudEvents\V1\CloudEventInterface $event): void
         $params = [
             "maxResults" => 20,
             "q" => $query->build($target),
-            // "labelIds" => [  # to specify, need to pass labelIds not labelNames
-            //     "mailmag",
-            // ],
             "includeSpamTrash" => false,
         ];
         $logger->log("Listing messages: " . json_encode($params));
