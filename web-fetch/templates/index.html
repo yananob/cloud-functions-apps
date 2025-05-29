@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Fetch URL Adder</title>
+    <style>
+        body { font-family: sans-serif; margin: 2em; }
+        label { display: block; margin-bottom: 0.5em; }
+        input[type="text"] { width: 100%; max-width: 500px; padding: 0.5em; margin-bottom: 1em; }
+        input[type="submit"] { padding: 0.7em 1.5em; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Add URL to Pocket and Raindrop</h1>
+    <form method="POST" action="">
+        <div>
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" required>
+        </div>
+        <div>
+            <input type="submit" value="Add URL">
+        </div>
+    </form>
+</body>
+</html>
