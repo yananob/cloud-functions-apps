@@ -1,37 +1,36 @@
 <?php declare(strict_types=1);
 
-// Composerのオートローダーを読み込む
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Google Cloud Functions Framework を使用して CloudEvent 関数 'main' を登録
-Google\CloudFunctions\FunctionsFramework::cloudEvent('main', 'main');
+use Google\CloudFunctions\FunctionsFramework;
+use CloudEvents\V1\CloudEventInterface;
+use yananob\MyTools\Logger;
+use yananob\MyTools\Trigger;
+use yananob\MyTools\Utils;
+use yananob\MyTools\Pocket;
+use yananob\MyTools\Raindrop;
 
 // CloudEventを処理するメイン関数
-// 設定されたタイミングで指定されたURLをPocketに追加する
-function main(CloudEvents\V1\CloudEventInterface $event): void
+// 設定されたタイミングで指定されたURLをPocketおよびRaindropに追加する
+FunctionsFramework::cloudEvent('main', 'main');
+function main(CloudEventInterface $event): void
 {
-    // ロガーを初期化 (ログ識別子は "web-fetch")
-    $logger = new yananob\MyTools\Logger("web-fetch");
-    // トリガーオブジェクトを初期化 (タイミング判定用)
-    $trigger = new yananob\MyTools\Trigger();
+    $logger = new Logger("web-fetch");
+    $trigger = new Trigger();
 
-    // 設定ファイル (config.json) を読み込み
-    // dirname(__FILE__) は現在のファイルのディレクトリパスを返す
-    $config = yananob\MyTools\Utils::getConfig(dirname(__FILE__) . "/configs/config.json");
-    
-    // 設定ファイル内の "settings" 配列をループ処理
+    $config = Utils::getConfig(dirname(__FILE__) . "/configs/config.json");
+
+    $pocket = new Pocket(__DIR__ . '/configs/pocket.json');
+    $raindrop = new Raindrop(__DIR__ . '/configs/raindrop.json');
     foreach ($config["settings"] as $setting) {
-        $logger->log("Processing target: " . json_encode($setting)); // 現在処理中の設定をログに出力
+        $logger->log("Processing target: " . json_encode($setting));
 
-        // TriggerクラスのisLaunchメソッドで、現在の時刻が設定されたタイミングに一致するか確認
         if ($trigger->isLaunch($setting["timing"])) {
-            $logger->log("Adding page to Pocket"); // Pocketに追加処理を行うことをログに出力
-            // Pocketオブジェクトを初期化 (Pocketの設定ファイルパスを指定)
-            $pocket = new yananob\MyTools\Pocket(__DIR__ . '/configs/pocket.json');
-            // 設定されたURLをPocketに追加
+            $logger->log("Timing matched, adding page to Pocket and Raindrop");
             $pocket->add($setting["url"]);
+            $raindrop->add($setting["url"]);
         }
     };
 
-    $logger->log("Succeeded."); // 全ての処理が完了したことをログに出力
+    $logger->log("Succeeded.");
 }
