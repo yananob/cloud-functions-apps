@@ -1,10 +1,12 @@
 {
     "firestore": [
         {
-            "type": "collection",
-            "path_teset": "daily-quotes-test/quotes/quotes",
-            "path": "daily-quotes-test/quotes/quotes",
-            "columns": ["no", "author", "created_at", "source", "source_link", "message", "updated_at"]
+            "backup_type": "collection_group",
+            "path": "daily-quotes-test/quotes"
+        },
+        {
+            "backup_type": "document",
+            "path": "daily-quotes-test/admin"
         }
     ],
     "storage": {
