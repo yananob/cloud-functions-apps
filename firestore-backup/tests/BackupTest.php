@@ -189,7 +189,8 @@ class BackupTest extends TestCase
         $csvFile = fopen($csvFilePath, 'r');
         $this->assertIsResource($csvFile);
         $header = fgetcsv($csvFile); // ヘッダーは空になるはずです。
-        $this->assertEquals([], $header ?: [], "空ドキュメントの場合、ヘッダーは空配列であるべきです。"); // fgetcsv は空行の場合 null を返すことがあるため ?: [] で対応
+        // fputcsv で空配列を書き込むと空行が出力され、fgetcsv はそれを [null] として読み取ります。
+        $this->assertEquals([null], $header, "空ドキュメントでヘッダー行が空の場合、fgetcsv は [null] を返すべきです。");
 
         $row = fgetcsv($csvFile); // ヘッダーが空の場合、データ行はないはずです。
         $this->assertFalse($row, "ヘッダーが空の場合、データ行は存在しないはずです（またはヘッダーが唯一の行）。");
