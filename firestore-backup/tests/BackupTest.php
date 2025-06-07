@@ -17,6 +17,59 @@ use Google\Cloud\Firestore\DocumentSnapshot;
  */
 class BackupTest extends TestCase
 {
+    private static string $tmpDir;
+
+    /**
+     * 全てのテストの前に一度だけ呼び出され、一時ディレクトリの準備を行います。
+     */
+    public static function setUpBeforeClass(): void
+    {
+        self::$tmpDir = __DIR__ . '/../tmp';
+
+        if (!is_dir(self::$tmpDir)) {
+            // @mkdir 通常はエラー時に E_WARNING が発生します。エラー制御演算子で抑制し、成否をif文で判定します。
+            if (!@mkdir(self::$tmpDir, 0777, true)) {
+                // self::markTestSkipped や throw new Exception も検討できますが、
+                // ここではエラーメッセージを出力して続行を試みます。
+                // PHPUnitの実行環境によっては、これでもテストが失敗する可能性があります。
+                echo "警告: 一時ディレクトリ " . self::$tmpDir . " の作成に失敗しました。\n";
+            }
+        }
+
+        if (!is_writable(self::$tmpDir)) {
+            // @chmod 通常はエラー時に E_WARNING が発生します。
+            if (!@chmod(self::$tmpDir, 0777)) {
+                echo "警告: 一時ディレクトリ " . self::$tmpDir . " を書き込み可能にできませんでした。\n";
+                // 書き込み可能でない場合、以降のテストでファイル作成に失敗する可能性が高いです。
+                // 必要であれば、ここでテストをスキップまたは失敗させることもできます。
+                // self::markTestSuiteSkipped('一時ディレクトリが書き込み可能ではありません。');
+            }
+        }
+    }
+
+    /**
+     * 全てのテストの後に一度だけ呼び出され、一時ディレクトリをクリーンアップします。
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (is_dir(self::$tmpDir)) {
+            // ディレクトリ内のファイルをまず削除 (より堅牢な削除のために)
+            $files = glob(self::$tmpDir . '/firestore_backup_*');
+            if ($files !== false) {
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+            // `tmp` ディレクトリ自体を削除 (空である場合のみ成功します)
+            // @rmdir エラー制御演算子で E_WARNING を抑制
+            if (!@rmdir(self::$tmpDir)) {
+                 echo "警告: 一時ディレクトリ " . self::$tmpDir . " の削除に失敗しました。ファイルが残っている可能性があります。\n";
+            }
+        }
+    }
+
     /**
      * 各テストメソッドの後に呼び出され、一時ファイルをクリーンアップします。
      */
