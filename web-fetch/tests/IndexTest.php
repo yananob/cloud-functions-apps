@@ -6,7 +6,6 @@ require_once __DIR__ . '/../index.php';
 
 use PHPUnit\Framework\TestCase;
 use CloudEvents\V1\CloudEventInterface;
-use yananob\MyTools\Pocket; // Assuming this is the correct namespace
 use yananob\MyTools\Raindrop; // Assuming this is the correct namespace
 use yananob\MyTools\Trigger;
 use yananob\MyTools\Utils;
@@ -14,9 +13,7 @@ use yananob\MyTools\Utils;
 class IndexTest extends TestCase
 {
     private $configFilePath = __DIR__ . '/../configs/config.json';
-    private $pocketConfigPath = __DIR__ . '/../configs/pocket.json';
     private $raindropConfigPath = __DIR__ . '/../configs/raindrop.json';
-    private $originalPocketContent;
     private $originalRaindropContent;
     private $originalConfigContent;
 
@@ -24,9 +21,6 @@ class IndexTest extends TestCase
     protected function setUp(): void
     {
         // Backup original config files if they exist
-        if (file_exists($this->pocketConfigPath)) {
-            $this->originalPocketContent = file_get_contents($this->pocketConfigPath);
-        }
         if (file_exists($this->raindropConfigPath)) {
             $this->originalRaindropContent = file_get_contents($this->raindropConfigPath);
         }
@@ -34,11 +28,6 @@ class IndexTest extends TestCase
             $this->originalConfigContent = file_get_contents($this->configFilePath);
         }
 
-        // Create dummy pocket.json
-        file_put_contents($this->pocketConfigPath, json_encode([
-            'consumer_key' => 'dummy_pocket_consumer_key',
-            'access_token' => 'dummy_pocket_access_token'
-        ]));
         // Create dummy raindrop.json
         file_put_contents($this->raindropConfigPath, json_encode([
             'api_key' => 'dummy_raindrop_api_key',
@@ -49,11 +38,6 @@ class IndexTest extends TestCase
     protected function tearDown(): void
     {
         // Restore original config files
-        if ($this->originalPocketContent !== null) {
-            file_put_contents($this->pocketConfigPath, $this->originalPocketContent);
-        } else {
-            @unlink($this->pocketConfigPath); // Remove if created by test
-        }
         if ($this->originalRaindropContent !== null) {
             file_put_contents($this->raindropConfigPath, $this->originalRaindropContent);
         } else {
@@ -66,8 +50,18 @@ class IndexTest extends TestCase
         }
     }
 
-    public function testAddsToPocketAndRaindropOnTrigger()
+    public function testAddsToRaindropOnTrigger()
     {
+        // This test verifies that when a configured trigger condition is met,
+        // the application attempts to add the specified URL to Raindrop.
+        // It creates a temporary configuration that should always trigger,
+        // then calls the main event processing function.
+        // The test is considered successful if the main function executes
+        // without throwing any exceptions.
+        // Note: This test does not mock the Raindrop service itself, so it
+        // relies on the actual Raindrop client code. For more isolated unit
+        // testing, the Raindrop client would ideally be injected and mocked.
+
         // 1. Mock CloudEvent
         $mockEvent = $this->createMock(CloudEventInterface::class);
 
@@ -86,16 +80,14 @@ class IndexTest extends TestCase
         ];
         file_put_contents($this->configFilePath, json_encode($testSettings));
         
-        // Mocks for Pocket, Raindrop, and Trigger cannot be created if classes are final.
+        // Mocks for Raindrop and Trigger cannot be created if classes are final.
         // These mocks won't be used by main() due to direct instantiation anyway.
         // This is the limitation.
-        // $mockPocket = $this->createMock(Pocket::class);
         // $mockRaindrop = $this->createMock(Raindrop::class);
         // $mockTrigger = $this->createMock(Trigger::class);
 
-        // We expect 'add' to be called on the *actual* objects, but cannot assert this on mocks
+        // We expect 'add' to be called on the *actual* Raindrop object, but cannot assert this on mocks
         // if they could be created and injected.
-        // e.g., $mockPocket->expects($this->once())->method('add')->with($testUrl);
         
         // We can't easily mock Trigger->isLaunch to return true for the *actual* object
         // used in main(). If the real Trigger class logic is complex or relies on time,
@@ -111,10 +103,10 @@ class IndexTest extends TestCase
         }
 
         $this->markTestIncomplete(
-            'This test currently only verifies that main() runs with the new Raindrop integration. ' .
-            'It cannot verify that Pocket->add() and Raindrop->add() are actually called with the correct URL ' .
-            'because main() directly instantiates these services. Refactoring main() for dependency injection ' .
-            'is needed for proper unit testing of these interactions.'
+            'This test currently only verifies that main() runs with the Raindrop integration. ' .
+            'It cannot verify that Raindrop->add() is actually called with the correct URL ' .
+            'because main() directly instantiates this service. Refactoring main() for dependency injection ' .
+            'is needed for proper unit testing of this interaction.'
         );
     }
 }

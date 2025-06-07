@@ -10,7 +10,6 @@ use GuzzleHttp\Psr7\Response;
 use yananob\MyTools\Logger;
 use yananob\MyTools\Trigger;
 use yananob\MyTools\Utils;
-use yananob\MyTools\Pocket;
 use yananob\MyTools\Raindrop;
 
 // CloudEventを処理するメイン関数
@@ -28,14 +27,12 @@ function main_event(CloudEventInterface $event): void
 
     $config = Utils::getConfig(dirname(__FILE__) . "/configs/config.json");
 
-    $pocket = new Pocket(__DIR__ . '/configs/pocket.json');
     $raindrop = new Raindrop(__DIR__ . '/configs/raindrop.json');
     foreach ($config["settings"] as $setting) {
         $logger->log("Processing target: " . json_encode($setting));
 
         if ($trigger->isLaunch($setting["timing"])) {
-            $logger->log("Timing matched, adding page to Pocket and Raindrop");
-            $pocket->add($setting["url"]);
+            $logger->log("Timing matched, adding page to Raindrop");
             $raindrop->add($setting["url"]);
         }
     };
@@ -83,10 +80,6 @@ function main_http(ServerRequestInterface $request): ResponseInterface
         $logger->log("Received URL to add: " . $url);
 
         try {
-            $pocket = new Pocket(__DIR__ . '/configs/pocket.json');
-            $pocket->add($url);
-            $logger->log("URL added to Pocket: " . $url);
-
             $raindrop = new Raindrop(__DIR__ . '/configs/raindrop.json');
             $raindrop->add($url);
             $logger->log("URL added to Raindrop: " . $url);
@@ -94,7 +87,7 @@ function main_http(ServerRequestInterface $request): ResponseInterface
             return new Response(
                 200,
                 ['Content-Type' => 'text/plain'],
-                'URL added successfully to Pocket and Raindrop: ' . $url
+                'URL added successfully to Raindrop: ' . $url
             );
         } catch (\Exception $e) {
             $logger->log("Error adding URL: " . $e->getMessage());
