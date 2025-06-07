@@ -240,22 +240,26 @@ function __save_csv(iterable $documents): string|false
 
         fputcsv($fp, $keys); // ヘッダー行をCSVファイルに書き込む
 
-        // データ行を書き込む
-        foreach ($docsArray as $doc) {
-            // $doc は DocumentSnapshot オブジェクト
-            $docData = $doc->data();
-            $data = []; // この行のデータを格納する配列
-            foreach ($keys as $key) {
-                // CSV互換性のために様々なデータ型を処理
-                $value = $docData[$key] ?? ""; // キーが存在しない場合は空文字
-                if (is_array($value) || is_object($value)) {
-                    $value = json_encode($value); // 配列やオブジェクトはJSON文字列に変換
-                } elseif (is_bool($value)) {
-                    $value = $value ? 'true' : 'false'; // boolean値は 'true'/'false' 文字列に変換
+        // $keys が空の場合、意味のあるデータ行は書き込めないため、データ行の書き込み処理をスキップする。
+        // これにより、ヘッダーが空の場合に不要な空行がデータとして書き込まれるのを防ぐ。
+        if (!empty($keys)) {
+            // データ行を書き込む
+            foreach ($docsArray as $doc) {
+                // $doc は DocumentSnapshot オブジェクト
+                $docData = $doc->data();
+                $data = []; // この行のデータを格納する配列
+                foreach ($keys as $key) {
+                    // CSV互換性のために様々なデータ型を処理
+                    $value = $docData[$key] ?? ""; // キーが存在しない場合は空文字
+                    if (is_array($value) || is_object($value)) {
+                        $value = json_encode($value); // 配列やオブジェクトはJSON文字列に変換
+                    } elseif (is_bool($value)) {
+                        $value = $value ? 'true' : 'false'; // boolean値は 'true'/'false' 文字列に変換
+                    }
+                    $data[$key] = $value;
                 }
-                $data[$key] = $value;
+                fputcsv($fp, $data); // データ行をCSVファイルに書き込む
             }
-            fputcsv($fp, $data); // データ行をCSVファイルに書き込む
         }
     } finally {
         fclose($fp); // ファイルポインタを必ず閉じる
