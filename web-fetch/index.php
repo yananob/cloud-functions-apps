@@ -13,11 +13,11 @@ use yananob\MyTools\Utils;
 use yananob\MyTools\Raindrop;
 
 // CloudEventを処理するメイン関数
-// 設定されたタイミングで指定されたURLをPocketおよびRaindropに追加する
+// 設定されたタイミングで指定されたURLをRaindropに追加する
 FunctionsFramework::cloudEvent('main_event', 'main_event');
 
 // HTTPリクエストを処理するメイン関数
-// 指定されたURLをPocketおよびRaindropに追加する
+// 指定されたURLをRaindropに追加する
 FunctionsFramework::http('main_http', 'main_http');
 
 function main_event(CloudEventInterface $event): void
