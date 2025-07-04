@@ -2,7 +2,7 @@
 set -eu
 
 # This script tests the POST functionality of the web-fetch HTTP endpoint.
-# It submits a URL to be added to Pocket and Raindrop.
+# It submits a URL to be added to Raindrop.
 
 curl -X POST \
     -H "Content-Type: application/x-www-form-urlencoded" \
