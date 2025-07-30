@@ -1,0 +1,40 @@
+name: Update and Push Submodule
+
+on:
+  push:
+    branches:
+      - main # ここを更新したいブランチ名に変更してください
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: true # submoduleもクローンする
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        # Git認証情報を設定
+        git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+    - name: Update _cf-common submodule
+      run: |
+        cd _cf-common
+        git pull origin main # _cf-commonのリモートブランチ名に合わせてください (例: main, developなど)
+        cd ..
+
+    - name: Check for changes and push
+      run: |
+        if git diff --exit-code --quiet; then
+          echo "No changes in _cf-common submodule. Skipping push."
+        else
+          git add _cf-common
+          git commit -m "Update _cf-common submodule [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+          echo "Pushed _cf-common submodule update."
+        fi
