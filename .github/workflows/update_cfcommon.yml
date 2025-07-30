@@ -26,7 +26,7 @@ jobs:
     - name: Update _cf-common submodule
       run: |
         cd _cf-common
-        git pull origin master # _cf-commonのリモートブランチ名に合わせてください (例: main, developなど)
+        git pull origin main # _cf-commonのリモートブランチ名に合わせてください (例: main, developなど)
         cd ..
 
     - name: Check for changes and push
