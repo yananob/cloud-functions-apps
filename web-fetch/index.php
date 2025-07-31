@@ -84,11 +84,8 @@ function main_http(ServerRequestInterface $request): ResponseInterface
             $raindrop->add($url);
             $logger->log("URL added to Raindrop: " . $url);
 
-            return new Response(
-                200,
-                ['Content-Type' => 'text/plain'],
-                'URL added successfully to Raindrop: ' . $url
-            );
+            // Redirect to the form page (GET request) after successful submission
+            return new Response(303, ['Location' => $request->getUri()->getPath()]);
         } catch (\Exception $e) {
             $logger->log("Error adding URL: " . $e->getMessage());
             return new Response(
