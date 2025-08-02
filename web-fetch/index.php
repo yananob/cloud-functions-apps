@@ -85,9 +85,10 @@ function main_http(ServerRequestInterface $request): ResponseInterface
             $logger->log("URL added to Raindrop: " . $url);
 
             // Redirect back to the form with a success message
-            $current_uri = $request->getUri();
-            $new_uri = $current_uri->withQuery('');
-            $location = (string)$new_uri . '?' . http_build_query(['success' => 'URL added successfully!']);
+            $scheme = $request->getHeaderLine('X-Forwarded-Proto') ?: $request->getUri()->getScheme();
+            $host = $request->getHeaderLine('Host') ?: $request->getUri()->getHost();
+            $path = $request->getUri()->getPath();
+            $location = $scheme . '://' . $host . $path . '?' . http_build_query(['success' => 'URL added successfully!']);
             return new Response(302, ['Location' => $location]);
         } catch (\Exception $e) {
             $logger->log("Error adding URL: " . $e->getMessage());
