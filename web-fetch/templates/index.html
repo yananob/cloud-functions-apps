@@ -13,6 +13,9 @@
 </head>
 <body>
     <h1>Add URL to Raindrop</h1>
+
+    <div id="message-container" style="color: green; margin-bottom: 1em;"></div>
+
     <form method="POST" action="">
         <div>
             <label for="url">Enter URL:</label>
@@ -22,5 +25,16 @@
             <input type="submit" value="Add URL">
         </div>
     </form>
+
+    <script>
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            const successMessage = params.get('success');
+            if (successMessage) {
+                const messageContainer = document.getElementById('message-container');
+                messageContainer.textContent = decodeURIComponent(successMessage);
+            }
+        };
+    </script>
 </body>
 </html>
