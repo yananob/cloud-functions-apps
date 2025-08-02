@@ -11,6 +11,7 @@ use yananob\MyTools\Logger;
 use yananob\MyTools\Trigger;
 use yananob\MyTools\Utils;
 use yananob\MyTools\Raindrop;
+use yananob\MyGcpTools\CFUtils;
 
 // CloudEventを処理するメイン関数
 // 設定されたタイミングで指定されたURLをRaindropに追加する
@@ -43,6 +44,8 @@ function main_event(CloudEventInterface $event): void
 function main_http(ServerRequestInterface $request): ResponseInterface
 {
     $logger = new Logger("web-fetch-http");
+
+    $isLocal = CFUtils::isLocalHttp($request);
 
     if ($request->getMethod() === 'GET') {
         // Serve the HTML form
@@ -80,15 +83,14 @@ function main_http(ServerRequestInterface $request): ResponseInterface
         $logger->log("Received URL to add: " . $url);
 
         try {
-            $raindrop = new Raindrop(__DIR__ . '/configs/raindrop.json');
+            $config = Utils::getConfig(__DIR__ . '/configs/raindrop.json', asArray: false);
+            $raindrop = new Raindrop($config->access_token);
             $raindrop->add($url);
             $logger->log("URL added to Raindrop: " . $url);
 
             // Redirect back to the form with a success message
-            $scheme = $request->getHeaderLine('X-Forwarded-Proto') ?: $request->getUri()->getScheme();
-            $host = $request->getHeaderLine('Host') ?: $request->getUri()->getHost();
-            $path = $request->getUri()->getPath();
-            $location = $scheme . '://' . $host . $path . '?' . http_build_query(['success' => 'URL added successfully!']);
+            $location = CFUtils::getBaseUrl($isLocal, $request);
+            $location .= "?" . http_build_query(['success' => 'URL added successfully!']);
             return new Response(302, ['Location' => $location]);
         } catch (\Exception $e) {
             $logger->log("Error adding URL: " . $e->getMessage());

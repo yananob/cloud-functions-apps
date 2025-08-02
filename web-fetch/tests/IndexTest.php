@@ -96,7 +96,7 @@ class IndexTest extends TestCase
 
         // Call the main function
         try {
-            main($mockEvent); // main() is void, so no return to check directly
+            main_event($mockEvent); // main() is void, so no return to check directly
             $this->assertTrue(true); // If it runs without exceptions, consider it a basic pass
         } catch (Exception $e) {
             $this->fail("main() function threw an exception: " . $e->getMessage());
