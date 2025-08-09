@@ -6,7 +6,7 @@
         {
             "label": "deploy web-fetch-http",
             "type": "shell",
-            "command": "./deploy_php_http.sh web-fetch web-fetch-http"
+            "command": "./deploy_php_http.sh web-fetch/ web-fetch-http"
         }
     ]
 }
