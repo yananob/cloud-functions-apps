@@ -1,4 +1,4 @@
 #!/bin/bash
 set -eu
 
-gcloud pubsub topics publish web-fetch --message="test!"
+gcloud pubsub topics publish web-fetch-event --message="test!"

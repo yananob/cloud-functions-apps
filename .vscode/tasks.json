@@ -7,6 +7,11 @@
             "label": "deploy web-fetch-http",
             "type": "shell",
             "command": "./deploy_php_http.sh web-fetch/ web-fetch-http"
+        },
+        {
+            "label": "deploy web-fetch-event",
+            "type": "shell",
+            "command": "./deploy_php_event.sh web-fetch/ web-fetch-event"
         }
     ]
 }
