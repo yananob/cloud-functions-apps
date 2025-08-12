@@ -26,9 +26,10 @@ function main_event(CloudEventInterface $event): void
     $logger = new Logger("web-fetch-event");
     $trigger = new Trigger();
 
-    $config = Utils::getConfig(dirname(__FILE__) . "/configs/config.json");
+    $config = Utils::getConfig(__DIR__ . "/configs/config.json");
 
-    $raindrop = new Raindrop(__DIR__ . '/configs/raindrop.json');
+    $raindropConfig = Utils::getConfig(__DIR__ . '/configs/raindrop.json', asArray: false);
+    $raindrop = new Raindrop($raindropConfig->access_token);
     foreach ($config["settings"] as $setting) {
         $logger->log("Processing target: " . json_encode($setting));
 

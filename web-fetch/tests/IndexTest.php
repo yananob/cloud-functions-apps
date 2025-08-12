@@ -30,8 +30,7 @@ class IndexTest extends TestCase
 
         // Create dummy raindrop.json
         file_put_contents($this->raindropConfigPath, json_encode([
-            'api_key' => 'dummy_raindrop_api_key',
-            'collection_id' => 'dummy_collection_id'
+            'access_token' => 'dummy_raindrop_api_key'
         ]));
     }
 
