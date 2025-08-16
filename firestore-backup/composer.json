@@ -18,7 +18,7 @@
     "scripts": {
         "start": [
             "Composer\\Config::disableProcessTimeout",
-            "FUNCTION_TARGET=main php -S localhost:${PORT:-8080} vendor/google/cloud-functions-framework/router.php"
+            "FUNCTION_TARGET=main_event php -S localhost:${PORT:-8080} vendor/google/cloud-functions-framework/router.php"
         ]
     },
     "repositories": [

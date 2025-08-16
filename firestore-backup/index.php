@@ -10,9 +10,9 @@ use Google\Cloud\Storage\StorageClient;
 use yananob\MyTools\Logger;
 use yananob\MyTools\Utils;
 
-FunctionsFramework::cloudEvent('main', 'main');
+FunctionsFramework::cloudEvent('main_event', 'main_event');
 
-function main(CloudEventInterface $event): void
+function main_event(CloudEventInterface $event): void
 {
     $logger = new Logger("firestore-backup");
 

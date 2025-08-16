@@ -12,6 +12,11 @@
             "label": "deploy web-fetch-event",
             "type": "shell",
             "command": "./deploy_php_event.sh web-fetch/ web-fetch-event"
+        },
+        {
+            "label": "deploy firestore-backup-event",
+            "type": "shell",
+            "command": "./deploy_php_event.sh firestore-backup/ firestore-backup"
         }
     ]
 }
