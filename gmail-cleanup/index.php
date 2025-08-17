@@ -1,21 +1,27 @@
 <?php declare(strict_types=1);
 
+use CloudEvents\V1\CloudEventInterface;
+use Google\CloudFunctions\FunctionsFramework;
+use yananob\MyTools\GmailWrapper;
+use yananob\MyTools\Logger;
+use yananob\MyTools\Utils;
+
 require_once __DIR__ . '/vendor/autoload.php';
 
-Google\CloudFunctions\FunctionsFramework::cloudEvent('main', 'main');
-function main(CloudEvents\V1\CloudEventInterface $event): void
+FunctionsFramework::cloudEvent('main', 'main');
+function main(CloudEventInterface $event): void
 {
-    $logger = new yananob\MyTools\Logger("gmail-cleanup");
-    $client = yananob\MyTools\GmailWrapper::getClient(
-        __DIR__ . '/configs/googleapi_clientsecret.json',
-        __DIR__ . '/configs/googleapi_token.json',
+    $logger = new Logger("gmail-cleanup");
+    $client = GmailWrapper::getClient(
+        Utils::getConfig(__DIR__ . '/configs/googleapi_clientsecret.json'),
+        Utils::getConfig(__DIR__ . '/configs/googleapi_token.json'),
     );
     $service = new Google\Service\Gmail($client);
     $query = new MyApp\Query();
 
     $user = 'me';
 
-    $config = yananob\MyTools\Utils::getConfig(__DIR__ . "/configs/config.json");
+    $config = Utils::getConfig(__DIR__ . "/configs/config.json");
 
     foreach ($config["targets"] as $target) {
         $logger->log("Processing target: " . json_encode($target));
@@ -38,7 +44,7 @@ function main(CloudEvents\V1\CloudEventInterface $event): void
             $message_b = $service->users_messages->get($user, $message->id);
             $logger->log("[{$message->id}] {$message_b->snippet}");
             $message_ids[] = $message->id;
-            $message_b = $service->users_messages->trash($user, $message->id);
+            // $message_b = $service->users_messages->trash($user, $message->id);
         }
     };
 

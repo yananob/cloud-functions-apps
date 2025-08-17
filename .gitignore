@@ -1,6 +1,7 @@
 config.json
 **/configs/*.json
 **/configs/*.json.bak
+**/credentials/*.json
 
 tmp/
 _deploy/
