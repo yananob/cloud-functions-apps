@@ -8,8 +8,8 @@ use yananob\MyTools\Utils;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-FunctionsFramework::cloudEvent('main', 'main');
-function main(CloudEventInterface $event): void
+FunctionsFramework::cloudEvent('main_event', 'main_event');
+function main_event(CloudEventInterface $event): void
 {
     $logger = new Logger("gmail-cleanup");
     $client = GmailWrapper::getClient(

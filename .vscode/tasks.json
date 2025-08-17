@@ -17,6 +17,11 @@
             "label": "deploy firestore-backup-event",
             "type": "shell",
             "command": "./deploy_php_event.sh firestore-backup/ firestore-backup"
+        },
+        {
+            "label": "deploy gmail-cleanup-event",
+            "type": "shell",
+            "command": "./deploy_php_event.sh gmail-cleanup/ gmail-cleanup"
         }
     ]
 }
