@@ -44,7 +44,7 @@ function main_event(CloudEventInterface $event): void
             $message_b = $service->users_messages->get($user, $message->id);
             $logger->log("[{$message->id}] {$message_b->snippet}");
             $message_ids[] = $message->id;
-            // $message_b = $service->users_messages->trash($user, $message->id);
+            $message_b = $service->users_messages->trash($user, $message->id);
         }
     };
 
