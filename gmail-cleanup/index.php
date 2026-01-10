@@ -8,6 +8,23 @@ use yananob\MyTools\Utils;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Define words to filter from logs.
+const FILTERED_WORDS = ['exception'];
+
+/**
+ * Filters out specified words from a log message.
+ *
+ * @param string $message The original log message.
+ * @return string The filtered log message.
+ */
+function filter_log_message(string $message): string
+{
+    foreach (FILTERED_WORDS as $word) {
+        $message = str_ireplace($word, '[MASKED]', $message);
+    }
+    return $message;
+}
+
 FunctionsFramework::cloudEvent('main_event', 'main_event');
 function main_event(CloudEventInterface $event): void
 {
@@ -24,13 +41,13 @@ function main_event(CloudEventInterface $event): void
     $config = Utils::getConfig(__DIR__ . "/configs/config.json");
 
     foreach ($config["targets"] as $target) {
-        $logger->log("Processing target: " . json_encode($target));
+        $logger->log(filter_log_message("Processing target: " . json_encode($target)));
         $params = [
             "maxResults" => 20,
             "q" => $query->build($target),
             "includeSpamTrash" => false,
         ];
-        $logger->log("Listing messages: " . json_encode($params));
+        $logger->log(filter_log_message("Listing messages: " . json_encode($params)));
         $results = $service->users_messages->listUsersMessages($user, $params);
 
         if (count($results->getMessages()) == 0) {
@@ -42,7 +59,7 @@ function main_event(CloudEventInterface $event): void
         $message_ids = [];
         foreach ($results->getMessages() as $message) {
             $message_b = $service->users_messages->get($user, $message->id);
-            $logger->log("[{$message->id}] {$message_b->snippet}");
+            $logger->log(filter_log_message("[{$message->id}] {$message_b->snippet}"));
             $message_ids[] = $message->id;
             $message_b = $service->users_messages->trash($user, $message->id);
         }
