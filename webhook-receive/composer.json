@@ -11,7 +11,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10.3",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^1.10",
+        "dg/bypass-finals": "^1.9"
     },
     "repositories": [
         {
@@ -28,5 +29,10 @@
             "Composer\\Config::disableProcessTimeout",
             "FUNCTION_TARGET=main php -S localhost:${PORT:-8080} vendor/google/cloud-functions-framework/router.php"
         ]
+    },
+    "autoload": {
+        "psr-4": {
+            "MyApp\\": "src/"
+        }
     }
 }
