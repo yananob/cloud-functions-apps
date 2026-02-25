@@ -36,9 +36,6 @@ class WebhookHandler
 
         $body = json_decode($rawBody, true);
 
-        $this->logger->log($_ENV);
-        $this->logger->log(CFUtils::isTestingEnv());
-
         if (!is_array($body) || !isset($body['events']) || !is_array($body['events'])) {
             $this->logger->log("No events found in the request body.");
             return new Response(200, ['Content-Type' => 'application/json'], $rawBody);
@@ -55,27 +52,21 @@ class WebhookHandler
     /**
      * Processes a single LINE webhook event.
      *
-     * @param array<string, mixed> $event
+     * @param array<string, mixed> $eventData
      * @return void
      * @throws Exception
      */
-    private function processEvent(array $event): void
+    private function processEvent(array $eventData): void
     {
-        if (!isset($event['message']['text']) || !isset($event['source']['type'])) {
+        $event = new LineEvent($eventData);
+
+        if (!$event->isValidTextMessageEvent()) {
             $this->logger->log("Skipping event: message text or source type not found.");
             return;
         }
 
-        $message = $event['message']['text'];
-        $source = $event['source'];
-        $type = $source['type'];
-
-        $targetId = match ($type) {
-            'user' => $source['userId'] ?? null,
-            'group' => $source['groupId'] ?? null,
-            'room' => $source['roomId'] ?? null,
-            default => throw new Exception("Unknown type : " . $type),
-        };
+        $type = $event->getSourceType();
+        $targetId = $event->getTargetId();
 
         if ($targetId === null) {
             $this->logger->log("TargetId not found for type: " . $type);
@@ -84,8 +75,8 @@ class WebhookHandler
 
         $this->line->sendReply(
             bot: "test",
-            replyToken: (string)($event['replyToken'] ?? ''),
-            message: "Type: {$type}\nTargetId: {$targetId}\nMessage: {$message}"
+            replyToken: $event->getReplyToken(),
+            message: "Type: {$type}\nTargetId: {$targetId}\nMessage: {$event->getMessageText()}"
         );
     }
 }
