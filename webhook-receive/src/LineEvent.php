@@ -15,6 +15,16 @@ class LineEvent
     public function __construct(private array $data) {}
 
     /**
+     * Returns the event type.
+     *
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->data['type'] ?? null;
+    }
+
+    /**
      * Returns the reply token.
      *
      * @return string
@@ -22,6 +32,16 @@ class LineEvent
     public function getReplyToken(): string
     {
         return (string)($this->data['replyToken'] ?? '');
+    }
+
+    /**
+     * Returns the message type if available.
+     *
+     * @return string|null
+     */
+    public function getMessageType(): ?string
+    {
+        return $this->data['message']['type'] ?? null;
     }
 
     /**
@@ -71,6 +91,9 @@ class LineEvent
      */
     public function isValidTextMessageEvent(): bool
     {
-        return isset($this->data['message']['text']) && isset($this->data['source']['type']);
+        return $this->getType() === 'message'
+            && $this->getMessageType() === 'text'
+            && $this->getMessageText() !== null
+            && $this->getSourceType() !== null;
     }
 }
