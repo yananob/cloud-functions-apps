@@ -8,10 +8,22 @@ use Exception;
 
 class LineEventTest extends TestCase
 {
+    public function testGetType(): void
+    {
+        $event = new LineEvent(['type' => 'message']);
+        $this->assertEquals('message', $event->getType());
+    }
+
     public function testGetReplyToken(): void
     {
         $event = new LineEvent(['replyToken' => 'token123']);
         $this->assertEquals('token123', $event->getReplyToken());
+    }
+
+    public function testGetMessageType(): void
+    {
+        $event = new LineEvent(['message' => ['type' => 'text']]);
+        $this->assertEquals('text', $event->getMessageType());
     }
 
     public function testGetMessageText(): void
@@ -74,15 +86,33 @@ class LineEventTest extends TestCase
     public function testIsValidTextMessageEvent(): void
     {
         $validEvent = new LineEvent([
-            'message' => ['text' => 'hello'],
+            'type' => 'message',
+            'message' => [
+                'type' => 'text',
+                'text' => 'hello'
+            ],
             'source' => ['type' => 'user']
         ]);
         $this->assertTrue($validEvent->isValidTextMessageEvent());
 
-        $invalidEvent = new LineEvent([
-            'message' => ['type' => 'image'],
+        $invalidMessageTypeEvent = new LineEvent([
+            'type' => 'message',
+            'message' => [
+                'type' => 'image',
+                'text' => 'hello'
+            ],
             'source' => ['type' => 'user']
         ]);
-        $this->assertFalse($invalidEvent->isValidTextMessageEvent());
+        $this->assertFalse($invalidMessageTypeEvent->isValidTextMessageEvent());
+
+        $invalidEventTypeEvent = new LineEvent([
+            'type' => 'follow',
+            'message' => [
+                'type' => 'text',
+                'text' => 'hello'
+            ],
+            'source' => ['type' => 'user']
+        ]);
+        $this->assertFalse($invalidEventTypeEvent->isValidTextMessageEvent());
     }
 }

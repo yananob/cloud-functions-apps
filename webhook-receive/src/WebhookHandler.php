@@ -59,24 +59,40 @@ class WebhookHandler
     private function processEvent(array $eventData): void
     {
         $event = new LineEvent($eventData);
+        $type = $event->getType();
 
+        match ($type) {
+            'message' => $this->handleMessageEvent($event),
+            default => $this->logger->log("Unsupported event type: " . ($type ?? 'null')),
+        };
+    }
+
+    /**
+     * Handles a message event.
+     *
+     * @param LineEvent $event
+     * @return void
+     * @throws Exception
+     */
+    private function handleMessageEvent(LineEvent $event): void
+    {
         if (!$event->isValidTextMessageEvent()) {
-            $this->logger->log("Skipping event: message text or source type not found.");
+            $this->logger->log("Skipping message event: not a valid text message.");
             return;
         }
 
-        $type = $event->getSourceType();
+        $sourceType = $event->getSourceType();
         $targetId = $event->getTargetId();
 
         if ($targetId === null) {
-            $this->logger->log("TargetId not found for type: " . $type);
+            $this->logger->log("TargetId not found for source type: " . ($sourceType ?? 'null'));
             return;
         }
 
         $this->line->sendReply(
             bot: "test",
             replyToken: $event->getReplyToken(),
-            message: "Type: {$type}\nTargetId: {$targetId}\nMessage: {$event->getMessageText()}"
+            message: "Type: {$sourceType}\nTargetId: {$targetId}\nMessage: {$event->getMessageText()}"
         );
     }
 }

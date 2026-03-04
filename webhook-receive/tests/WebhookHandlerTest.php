@@ -59,4 +59,48 @@ class WebhookHandlerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals($payload, (string)$response->getBody());
     }
+
+    public function testHandleUnsupportedEventType(): void
+    {
+        $mockLine = $this->createMock(Line::class);
+        $mockLogger = $this->createMock(Logger::class);
+        $mockRequest = $this->getMockBuilder(ServerRequestInterface::class)->getMock();
+        $mockBody = $this->getMockBuilder(StreamInterface::class)->getMock();
+
+        $payload = json_encode([
+            'events' => [
+                [
+                    'type' => 'follow',
+                    'replyToken' => 'test-reply-token',
+                    'source' => [
+                        'type' => 'user',
+                        'userId' => 'test-user-id'
+                    ]
+                ]
+            ]
+        ]);
+
+        $mockBody->method('getContents')->willReturn($payload);
+        $mockRequest->method('getBody')->willReturn($mockBody);
+        $mockRequest->method('getHeaders')->willReturn([]);
+        $mockRequest->method('getQueryParams')->willReturn([]);
+        $mockRequest->method('getParsedBody')->willReturn([]);
+
+        $unsupportedLogCalled = false;
+        $mockLogger->method('log')
+            ->willReturnCallback(function($message) use (&$unsupportedLogCalled) {
+                if (str_contains($message, 'Unsupported event type: follow')) {
+                    $unsupportedLogCalled = true;
+                }
+            });
+
+        $mockLine->expects($this->never())->method('sendReply');
+
+        $handler = new WebhookHandler($mockLine, $mockLogger);
+        $response = $handler->handle($mockRequest);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals($payload, (string)$response->getBody());
+        $this->assertTrue($unsupportedLogCalled, 'Log for unsupported event type was not called.');
+    }
 }
