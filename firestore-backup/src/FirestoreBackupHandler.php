@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace MyApp;
+namespace App;
 
 use CloudEvents\V1\CloudEventInterface;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Firestore\QuerySnapshot;
 use Google\Cloud\Storage\StorageClient;
-use yananob\MyTools\Logger;
+use Psr\Log\LoggerInterface;
 
 /**
  * Firestoreのデータをバックアップする処理を規定するハンドラクラス。
@@ -16,13 +16,13 @@ class FirestoreBackupHandler
     /**
      * @param FirestoreClient $db
      * @param StorageClient $storage
-     * @param Logger $logger
+     * @param LoggerInterface $logger
      * @param array<string, mixed> $config
      */
     public function __construct(
         private FirestoreClient $db,
         private StorageClient $storage,
-        private Logger $logger,
+        private LoggerInterface $logger,
         private array $config
     ) {}
 
@@ -35,7 +35,7 @@ class FirestoreBackupHandler
     public function handle(CloudEventInterface $event): void
     {
         foreach ($this->config["firestore"] as $target) {
-            $this->logger->log("Processing [" . $target["path"] . "]");
+            $this->logger->info("Processing [" . $target["path"] . "]");
 
             $tmpFilepath = null;
             if ($target["type"] === "collection") {
@@ -43,7 +43,7 @@ class FirestoreBackupHandler
             }
 
             if ($tmpFilepath === null) {
-                $this->logger->log("No data to backup for path: " . $target["path"]);
+                $this->logger->warning("No data to backup for path: " . $target["path"]);
                 continue;
             }
 
@@ -64,7 +64,7 @@ class FirestoreBackupHandler
             }
         }
 
-        $this->logger->log("Succeeded.");
+        $this->logger->info("Succeeded.");
     }
 
     /**

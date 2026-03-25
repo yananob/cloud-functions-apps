@@ -6,9 +6,10 @@ use Google\CloudFunctions\FunctionsFramework;
 use CloudEvents\V1\CloudEventInterface;
 use Google\Cloud\Firestore\FirestoreClient;
 use Google\Cloud\Storage\StorageClient;
-use yananob\MyTools\Logger;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use yananob\MyTools\Utils;
-use MyApp\FirestoreBackupHandler;
+use App\FirestoreBackupHandler;
 
 FunctionsFramework::cloudEvent('main_event', 'main_event');
 
@@ -22,6 +23,7 @@ FunctionsFramework::cloudEvent('main_event', 'main_event');
 function main_event(CloudEventInterface $event): void
 {
     $logger = new Logger("firestore-backup");
+    $logger->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
 
     $db = new FirestoreClient([
         "keyFilePath" => __DIR__ . '/configs/firebase.json'
