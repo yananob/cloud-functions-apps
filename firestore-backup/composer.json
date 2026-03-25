@@ -9,7 +9,7 @@
         "google/protobuf": "^3.17",
         "google/cloud-firestore": "^1.37",
         "google/cloud-storage": "^1.35",
-        "yananob/my-tools": "dev-main"
+        "monolog/monolog": "^3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.3",
@@ -33,7 +33,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "MyApp\\": "./src/"
+            "App\\": "./src/"
         }
     }
 }
