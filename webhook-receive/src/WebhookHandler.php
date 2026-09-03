@@ -10,15 +10,22 @@ use yananob\MyGcpTools\CFUtils;
 use yananob\MyTools\Logger;
 use yananob\MyTools\Line;
 
+/**
+ * LINE Webhook リクエストを処理するハンドラクラス。
+ */
 class WebhookHandler
 {
+    /**
+     * @param Line $line LINE送信処理用インスタンス
+     * @param Logger $logger ログ出力用インスタンス
+     */
     public function __construct(
         private Line $line,
         private Logger $logger
     ) {}
 
     /**
-     * Handles the incoming LINE webhook request.
+     * 受信した LINE Webhook リクエストを処理します。
      *
      * @param ServerRequestInterface $request
      * @return ResponseInterface
@@ -37,7 +44,7 @@ class WebhookHandler
         $body = json_decode($rawBody, true);
 
         if (!is_array($body) || !isset($body['events']) || !is_array($body['events'])) {
-            $this->logger->log("No events found in the request body.");
+            $this->logger->log("リクエストボディにイベントが見つかりません。");
             return new Response(200, ['Content-Type' => 'application/json'], $rawBody);
         }
 
@@ -50,7 +57,7 @@ class WebhookHandler
     }
 
     /**
-     * Processes a single LINE webhook event.
+     * 単一の LINE Webhook イベントを処理します。
      *
      * @param array<string, mixed> $eventData
      * @return void
@@ -63,12 +70,12 @@ class WebhookHandler
 
         match ($type) {
             'message' => $this->handleMessageEvent($event),
-            default => $this->logger->log("Unsupported event type: " . ($type ?? 'null')),
+            default => $this->logger->log("未対応のイベントタイプです: " . ($type ?? 'null')),
         };
     }
 
     /**
-     * Handles a message event.
+     * メッセージイベントを処理します。
      *
      * @param LineEvent $event
      * @return void
@@ -77,7 +84,7 @@ class WebhookHandler
     private function handleMessageEvent(LineEvent $event): void
     {
         if (!$event->isValidTextMessageEvent()) {
-            $this->logger->log("Skipping message event: not a valid text message.");
+            $this->logger->log("メッセージイベントをスキップします: 有効なテキストメッセージではありません。");
             return;
         }
 
@@ -85,7 +92,7 @@ class WebhookHandler
         $targetId = $event->getTargetId();
 
         if ($targetId === null) {
-            $this->logger->log("TargetId not found for source type: " . ($sourceType ?? 'null'));
+            $this->logger->log("送信元タイプに対する TargetId が見つかりません: " . ($sourceType ?? 'null'));
             return;
         }
 
