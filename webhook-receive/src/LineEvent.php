@@ -5,7 +5,7 @@ namespace MyApp;
 use Exception;
 
 /**
- * LINE Webhook Event wrapper class.
+ * LINE Webhook イベントのラッパークラス。
  */
 class LineEvent
 {
@@ -15,7 +15,7 @@ class LineEvent
     public function __construct(private array $data) {}
 
     /**
-     * Returns the event type.
+     * イベントタイプを取得します。
      *
      * @return string|null
      */
@@ -25,7 +25,7 @@ class LineEvent
     }
 
     /**
-     * Returns the reply token.
+     * 応答トークンを取得します。
      *
      * @return string
      */
@@ -35,7 +35,7 @@ class LineEvent
     }
 
     /**
-     * Returns the message type if available.
+     * メッセージタイプを取得します。
      *
      * @return string|null
      */
@@ -45,7 +45,7 @@ class LineEvent
     }
 
     /**
-     * Returns the message text if available.
+     * メッセージ本文を取得します。
      *
      * @return string|null
      */
@@ -55,7 +55,7 @@ class LineEvent
     }
 
     /**
-     * Returns the source type (user, group, room).
+     * 送信元タイプ（user, group, room）を取得します。
      *
      * @return string|null
      */
@@ -65,10 +65,10 @@ class LineEvent
     }
 
     /**
-     * Returns the target ID based on the source type.
+     * 送信元タイプに応じたターゲットIDを取得します。
      *
      * @return string|null
-     * @throws Exception
+     * @throws Exception 未知の送信元タイプの場合に発生
      */
     public function getTargetId(): ?string
     {
@@ -80,12 +80,12 @@ class LineEvent
             'group' => $source['groupId'] ?? null,
             'room' => $source['roomId'] ?? null,
             null => null,
-            default => throw new Exception("Unknown type : " . $type),
+            default => throw new Exception("未知のタイプです: " . $type),
         };
     }
 
     /**
-     * Checks if the event is a valid text message event.
+     * 有効なテキストメッセージイベントであるか判定します。
      *
      * @return bool
      */

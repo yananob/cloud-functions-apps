@@ -1,1 +1,1 @@
-./_cf-common/deploy/deploy_php_event.sh
+./_myapps-common/deploy/deploy_php_event.sh
