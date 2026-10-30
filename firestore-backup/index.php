@@ -26,7 +26,8 @@ function main_event(CloudEventInterface $event): void
     $logger->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
 
     $db = new FirestoreClient([
-        "keyFilePath" => __DIR__ . '/configs/firebase.json'
+        "keyFilePath" => __DIR__ . '/configs/firebase.json',
+        'transport' => 'rest',
     ]);
 
     $storage = new StorageClient([

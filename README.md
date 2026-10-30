@@ -1,6 +1,6 @@
 # Cloud Function Apps
 
-このリポジトリには、Google Cloud Functions (PHP 8.2 / 8.3) 上で動作する複数のアプリケーションが含まれています。
+このリポジトリには、Google Cloud Functions (PHP 8.4) 上で動作する複数のアプリケーションが含まれています。
 
 ## コーディングルール
 - コメントおよびドキュメントは日本語で記述します。
